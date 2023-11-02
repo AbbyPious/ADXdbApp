@@ -1,0 +1,310 @@
+﻿@model TableViewModel
+
+<style>
+    .container {
+        min-width: 1000px;
+        max-width: inherit;
+        display: flex;
+    }
+
+    .sidebar {
+        width: 20%;
+        margin-top: 10px;
+        margin-right: 35px;
+        background-color: aliceblue;
+    }
+
+    .content {
+        width: 80%;
+    }
+
+    .show-table-data {
+        display: block !important;
+        margin-right: 15px;
+        margin-left: 25px;
+    }
+
+    .table-data {
+        display: none !important;
+    }
+
+    ul.listitem {
+        list-style-type: none;
+    }
+
+    .tablestyle {
+        font-family: Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+        .tablestyle td, .tablestyle th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        .tablestyle tr:nth-child(odd) {
+            background-color: aliceblue;
+        }
+
+        .tablestyle tr:hover {
+            background-color: #b2e8f6;
+        }
+
+        .tablestyle th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: aliceblue;
+            color: black;
+        }
+</style>
+
+<div class="container">
+    <div class="sidebar">
+        <ul class="listitem">
+            @foreach (var tableName in Model.TableNames)
+            {
+                <li>
+                    <a href="#" data-table-name="@tableName">
+                        @tableName
+                    </a>
+                </li>
+            }
+        </ul>
+        <div class="UploadDataTable">
+            <form asp-action="UploadData" asp-controller="Table" method="post" enctype="multipart/form-data">
+                <div class="table-data-insert">
+                    <h2>Insert Data</h2>
+                    <label for="tableName">Table Name:</label>
+                    <input type="text" name="tableName" id="tableName" placeholder="Enter table name" required>
+
+                    <label for="file">Choose a file to upload:</label>
+                    <input type="file" name="file" id="file" accept=".csv, .txt, .psv" required>
+
+                    <button type="submit">Insert Data</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+    <div class="content">
+       
+        @foreach (var tableName in Model.TableNames)
+        {
+            <form class="filterSortForm">
+                <div class="table-data" id="@tableName" style="display:none">
+
+
+
+                    <h2>Table Name : @tableName</h2>
+
+                    <input type="text" name="searchTerm" placeholder="Enter filter string">
+
+                    <input type="hidden" name="table" value="@tableName" /> <!-- Set the default table name -->
+                    <button type="submit">Apply Filter and Sort</button>
+
+
+                    <table class="tablestyle">
+                        <thead>
+                            <tr>
+                                @foreach (System.Data.DataColumn column in Model.TableData[tableName].Columns)
+                                {
+                                    <th>
+                                        @column.ColumnName <select name="sortBy" id="@column.ColumnName" data-column="@column.ColumnName">
+                                            <option value="@column.ColumnName asc">&uarr;</option>
+                                            <option value="@column.ColumnName desc">&darr;</option>
+                                        </select>
+                                    </th>
+                                }
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (System.Data.DataRow row in Model.TableData[tableName].Rows)
+                            {
+
+                                <tr>
+                                    @foreach (var cell in row.ItemArray)
+                                    {
+                                        <td>@cell</td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+
+                    </table>
+                </div>
+             
+            </form>
+        }
+
+
+    </div>
+  
+</div>
+
+
+
+
+
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    debugger;
+
+        // Get references to the elements
+        const tableNames = document.querySelectorAll(".sidebar a[data-table-name]");
+    const tableDataElements = document.querySelectorAll(".table-data");
+    this.sortSettings = '';
+        // Hide all table-data elements initially
+        //tableDataElements.forEach((element) => {
+        //    element.style.display = "none";
+        //});
+
+
+
+        // Add click event handlers to the table name links
+        tableNames.forEach((link) => {
+            link.addEventListener("click", (event) => {
+                event.preventDefault();
+                this.sortSettings = '';
+                const tableName = link.getAttribute("data-table-name");
+
+                // Hide all table-data elements
+                tableDataElements.forEach((element) => {
+                    element.classList.remove("show-table-data");
+                    element.classList.add("table-data");
+                   // element.style.display = "none";
+                });
+
+                // Show the selected table-data element
+                const selectedTable = document.getElementById(tableName);
+                if (selectedTable) {
+
+                    document.getElementById(tableName).classList.add("show-table-data");
+                    document.getElementById(tableName).classList.remove("table-data");
+                }
+
+            });
+        });
+
+
+    // Add filter functionality
+
+    // Handle dropdown change event
+
+    this.sortSettings = '';
+
+    // Handle dropdown change event
+    $(".filterSortForm select").change(function () {
+        const column = $(this).data("column");
+        const direction = $(this).val();
+        sortSettings = direction;
+    });
+
+    // Handle form submit
+    //var sortSettings = '';
+
+    //// Handle dropdown change event
+    //$(".content select").change(function () {
+    //    const column = $(this).data("column");
+    //    const direction = $(this).val();
+    //    sortSettings = direction;
+    //});
+
+    // Handle form submit
+    $(".content form").submit(function (e) {
+        e.preventDefault();
+        const searchTerm = $(this).find("input[name='searchTerm']").val();
+        const table = $(this).find("input[name='table']").val();
+
+        // Send an AJAX request to the server with sorting and filtering parameters
+        $.ajax({
+            url: "@Url.Action("FilterAndSortData", "Table")",
+            type: "POST",
+            data: {
+                searchTerm: searchTerm,
+                table: table,
+                sortSettings: sortSettings
+            },
+            success: function (data) {
+                debugger;
+                // Update the content of the div with the filtered and sorted data
+                var divid = '#' + data[0].TableName;
+                const divElement = $(divid);
+                const tableElement = divElement.find("table tbody");
+                tableElement.empty();
+
+                // Loop through the JSON data and create table rows
+                $.each(data, function (index, rowData) {
+                    let rowHtml = "<tr>";
+                    for (const key in rowData.Data[index]) {
+                        if (rowData.Data[index].hasOwnProperty(key)) {
+                            rowHtml += `<td> ${rowData.Data[index][key]}</td>`;
+                        }
+                    }
+                    rowHtml += "</tr>";
+                    tableElement.append(rowHtml);
+                });
+            },
+            error: function (error) {
+                console.error("Error: " + error);
+            }
+        });
+    });
+
+
+    //tableDataElements.forEach((element) => {
+    //    const tableName = element.id;
+    //    const filterInput = document.getElementById(`filterInput-${tableName}`);
+    //    if (filterInput) {
+    //        filterInput.addEventListener("input", () => {
+    //            const filterValue = filterInput.value.toLowerCase();
+    //            const rows = element.querySelectorAll("table tr");
+
+    //            rows.forEach((row, index) => {
+    //                if (index === 0) {
+    //                    // Skip header row
+    //                    return;
+    //                }
+
+    //                const cells = row.querySelectorAll("td");
+    //                let match = false;
+    //                cells.forEach((cell) => {
+    //                    if (cell.textContent.toLowerCase().includes(filterValue)) {
+    //                        match = true;
+    //                    }
+    //                });
+
+    //                if (match) {
+    //                    row.style.display = ""; // Show matching rows
+    //                } else {
+    //                    row.style.display = "none"; // Hide non-matching rows
+    //                }
+    //            });
+    //        });
+    //    }
+    //});
+    //,
+    //page: 1,
+    //    itemsPerPage: 10
+
+    @* <div class="pagination">
+                    @if (Model.CurrentPage > 1)
+        {
+            <a href="@Url.Action(" FilterAndSortData", "Table", new {page = Model.CurrentPage - 1})">Previous</a>
+                    }
+    @for (int i = 1; i <= Model.TotalPages; i++)
+    {
+        <a href="@Url.Action(" FilterAndSortData", "Table", new { page = i })" @(i == Model.CurrentPage ? "class=active" : "") >@i</a >
+                    }
+    @if (Model.CurrentPage < Model.TotalPages) {
+        <a href="@Url.Action(" FilterAndSortData", "Table", new { page = Model.CurrentPage + 1 })" > Next</a >
+                    }
+                </div >*@
+
+</script>
+

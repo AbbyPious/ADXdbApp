@@ -1,0 +1,100 @@
+﻿@model System.Data.DataTable
+<div class="con1">
+
+    @foreach (var tableName in Model.TableName)
+    {
+        <form class="filterSortForm">
+            <div class="table-data" id="@tableName" style="display:none">
+
+
+
+                <h2>Table Name : @tableName</h2>
+
+            <input type="text" name="searchTerm" placeholder="Enter filter string">
+
+            <input type="hidden" name="table" value="@tableName" /> <!-- Set the default table name -->
+            <button type="submit">Apply Filter and Sort</button>
+
+
+            <table class="tablestyle">
+                <thead>
+                    <tr>
+                        @foreach (System.Data.DataColumn column in Model.Columns)
+                        {
+                            <th>
+                                @column.ColumnName <select name="sortBy" id="@column.ColumnName" data-column="@column.ColumnName">
+                                    <option value="@column.ColumnName asc">&uarr;</option>
+                                    <option value="@column.ColumnName desc">&darr;</option>
+                                </select>
+                            </th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (System.Data.DataRow row in Model.Rows)
+                    {
+                        <tr>
+                            @foreach (var cell in row.ItemArray)
+                            {
+                                <td>
+                                    @cell
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+    </div>
+    </form>
+}
+</div>
+        <form class="filterSortForm">
+            @*<div class="table-data" id="@tableName" style="display:none">
+
+
+
+                <h2>Table Name : @tableName</h2>*@
+
+                <input type="text" name="searchTerm" placeholder="Enter filter string">
+
+                <!--<input type="hidden" name="table" value="" />--> <!-- Set the default table name -->
+                <button type="submit">Apply Filter and Sort</button>
+
+
+                <table class="tablestyle">
+                    <thead>
+                        <tr>
+                            @foreach (System.Data.DataColumn column in Model.Columns)
+                            {
+                                <th>
+                                    @column.ColumnName <select name="sortBy" id="@column.ColumnName" data-column="@column.ColumnName">
+                                        <option value="@column.ColumnName asc">&uarr;</option>
+                                        <option value="@column.ColumnName desc">&darr;</option>
+                                    </select>
+                                </th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (System.Data.DataRow row in Model.Rows)
+                        {
+                            <tr>
+                                @foreach (var cell in row.ItemArray)
+                                {
+                                    <td>
+                                        @cell
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            @*</div>*@
+        </form>
+
+
+
+
+
+
+

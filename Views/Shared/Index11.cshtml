@@ -1,0 +1,27 @@
+﻿
+@model List<QueryResult>
+
+<h1>Table Data from Azure Data Explorer</h1>
+
+@foreach (var result in Model)
+{
+    <h2>@result.TableName</h2>
+    <table>
+        <tr>
+            @foreach (var columnName in result.Data.Columns)
+            {
+                <th>@columnName</th>
+            }
+        </tr>
+        @foreach (var row in result.Data.Rows)
+        {
+            
+            @*<tr>
+                @foreach (var cell in row.ItemArray)
+                {
+                    <td>@cell</td>
+                }
+            </tr>*@
+}
+    </table>
+}

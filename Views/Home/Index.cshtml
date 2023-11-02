@@ -1,0 +1,30 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+@model List<QueryResult>
+
+<h1>Table Data from Azure Data Explorer</h1>
+
+@foreach (var result in Model)
+{
+    <h2>@result.TableName</h2>
+    <h2>@result.Data</h2>
+    @*<table>
+        <tr>
+            @foreach (Model column in result.Data.Columns)
+            {
+                <th>@column.ColumnName</th>
+            }
+        </tr>
+        @foreach (DataRow row in result.Data.Rows)
+        {
+            <tr>
+                @foreach (var cell in row.ItemArray)
+                {
+                    <td>@cell</td>
+                }
+            </tr>
+        }
+    </table>*@
+}
